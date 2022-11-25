@@ -10,7 +10,8 @@ CORS(app)
 def getCSV(file):
     if file:
         try:
-            if ".csv" in str(file.filename): return file
+            if "csv" ==  str(file.filename).split(".")[-1]: return file
+            # hola.csv.hola
         except:
             return None
     return None
