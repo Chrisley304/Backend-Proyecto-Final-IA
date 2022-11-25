@@ -13,4 +13,4 @@ Este proyecto incluye los algoritmos que cubrimos en la materia:
 
 ## Creditos
 
-Codigo elaborado por Christian Leyva, proximamente podras ver una descripción completa del proyecto [aquí](chrisley.dev/portfolio).
+Codigo elaborado por Christian Leyva, proximamente podras ver una descripción completa del proyecto [aquí](https://chrisley.dev/portfolio).
