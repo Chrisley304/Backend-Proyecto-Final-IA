@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
-from algoritmos.apriori import *
-from os.path import splitext
+from algoritmos.apriori import obtenerApriori
+from algoritmos.metricasDistancia import *
+# from os.path import splitext
 
 app = Flask(__name__)
 CORS(app)
@@ -16,7 +17,10 @@ def getCSV(file):
 
 @app.route('/asociacion', methods=['POST'])
 def asociacionPOST():
-    csvFile = getCSV(request.files['file'])
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
         Datos_Archivo = pd.read_csv(csvFile, header=None)
         soporteMinimo = float(request.form["soporteMinimo"])
@@ -34,6 +38,28 @@ def asociacionPOST():
         return jsonify({'error': 'El archivo no es un CSV'})
 
 
+@app.route('/metricas-distancia/<tipoDistancia>', methods=['POST'])
+def metricasDistanciaPOST(tipoDistancia):
+    # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
+    if csvFile:
+        Datos_Archivo = pd.read_csv(csvFile)
+        MatDistancias = getMatDist(Datos_Archivo, tipoDistancia)
+        if not MatDistancias.empty:
+            distanciasCSV = MatDistancias.to_csv()
+            return jsonify({
+                "csv": distanciasCSV,
+                "prueba": "prueba"
+            })
+        else:
+            return jsonify({'error': 'El parametro {} es incorrecto'.format(tipoDistancia)})
+    else:
+        return jsonify({'error': 'El archivo no es un CSV'})
+
+""" Otras formas de interactuar con la api
 @app.route('/users', methods=['GET'])
 def getUsers():
     return 'getUsers'
@@ -52,6 +78,7 @@ def deleteUser(id):
 @app.route('/user/<id>', methods=['PUT'])
 def updateUser(id):
     return 'updateUser'
+"""
 
 
 if __name__ == '__main__':

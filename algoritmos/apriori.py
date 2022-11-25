@@ -15,4 +15,3 @@ def obtenerApriori(datos:DataFrame, soporteMinimo, confianzaMinima, elevacionMin
         return list(ReglasAsociacion)
     except:
         return
-    return
