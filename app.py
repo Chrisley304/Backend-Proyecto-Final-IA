@@ -3,6 +3,7 @@ from flask_cors import CORS
 import pandas as pd
 from algoritmos.apriori import obtenerApriori
 from algoritmos.metricasDistancia import *
+from algoritmos.clustering import *
 # from os.path import splitext
 
 app = Flask(__name__)
@@ -82,26 +83,23 @@ def distanciaObjetosPOST(tipoDistancia):
     else:
         return jsonify({'error': 'El archivo no es un CSV'})
 
-""" Otras formas de interactuar con la api
-@app.route('/users', methods=['GET'])
-def getUsers():
-    return 'getUsers'
 
-
-@app.route('/user/<id>', methods=['GET'])
-def getUser(id):
-    return 'getUser: ' + id
-
-
-@app.route('/user/<id>', methods=['DELETE'])
-def deleteUser(id):
-    return 'deleteUser'
-
-
-@app.route('/user/<id>', methods=['PUT'])
-def updateUser(id):
-    return 'updateUser'
-"""
+@app.route('/clustering/<tipoClustering>', methods=['POST'])
+def clusteringPOST(tipoClustering):
+    # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
+    if csvFile:
+        Datos_Archivo = pd.read_csv(csvFile)
+        minClusters = int(request.form["minClusters"])
+        maxClusters = int(request.form["maxClusters"])
+        tipoDistancia = request.form["tipoDistancia"]
+        respuesta = getClustering(Datos_Archivo, tipoClustering,minClusters,maxClusters, tipoDistancia)
+        return jsonify(respuesta)
+    else:
+        return jsonify({'error': 'El archivo no es un CSV'})
 
 
 if __name__ == '__main__':
