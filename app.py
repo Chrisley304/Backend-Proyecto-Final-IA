@@ -39,8 +39,8 @@ def asociacionPOST():
         return jsonify({'error': 'El archivo no es un CSV'})
 
 
-@app.route('/metricas-distancia/<tipoDistancia>', methods=['POST'])
-def metricasDistanciaPOST(tipoDistancia):
+@app.route('/matriz-distancia/<tipoDistancia>', methods=['POST'])
+def matrizDistanciaPOST(tipoDistancia):
     # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
     try:
         csvFile = getCSV(request.files['file'])
@@ -54,6 +54,28 @@ def metricasDistanciaPOST(tipoDistancia):
             return jsonify({
                 "csv": distanciasCSV,
                 "prueba": "prueba"
+            })
+        else:
+            return jsonify({'error': 'El parametro {} es incorrecto'.format(tipoDistancia)})
+    else:
+        return jsonify({'error': 'El archivo no es un CSV'})
+
+
+@app.route('/distancia-objetos/<tipoDistancia>', methods=['POST'])
+def distanciaObjetosPOST(tipoDistancia):
+    # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
+    if csvFile:
+        Datos_Archivo = pd.read_csv(csvFile)
+        indexObjeto1 = int(request.form["objeto1"])
+        indexObjeto2 = int(request.form["objeto2"])
+        Distancia = getDistObjetos(Datos_Archivo, tipoDistancia,indexObjeto1,indexObjeto2)
+        if Distancia:
+            return jsonify({
+                "distancia": Distancia
             })
         else:
             return jsonify({'error': 'El parametro {} es incorrecto'.format(tipoDistancia)})
