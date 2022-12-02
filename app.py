@@ -24,11 +24,17 @@ def asociacionPOST():
     except:
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
-        Datos_Archivo = pd.read_csv(csvFile, header=None)
-        soporteMinimo = float(request.form["soporteMinimo"])
-        confianzaMinima = float(request.form["confianzaMinima"])
-        elevacionMinima = float(request.form["elevacionMinima"])
-        listaResultados = obtenerApriori(Datos_Archivo,soporteMinimo,confianzaMinima,elevacionMinima)
+        try:
+            Datos_Archivo = pd.read_csv(csvFile, header=None)
+            soporteMinimo = float(request.form["soporteMinimo"])
+            confianzaMinima = float(request.form["confianzaMinima"])
+            elevacionMinima = float(request.form["elevacionMinima"])
+        except:
+            return jsonify({"error":"Faltan parametros en la petición"})
+        try:
+            listaResultados = obtenerApriori(Datos_Archivo,soporteMinimo,confianzaMinima,elevacionMinima)
+        except:
+            return jsonify({"error":"Hay un problema con el archivo .csv"})
         ReglasDataFrame = pd.DataFrame(listaResultados)
         # Se genera el CSV y se almacena en la variable reglasCSV para despues enviarlo en el .json
         reglasCSV = ReglasDataFrame.to_csv()
@@ -49,7 +55,10 @@ def matrizDistanciaPOST(tipoDistancia):
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
         Datos_Archivo = pd.read_csv(csvFile)
-        MatDistancias = getMatDist(Datos_Archivo, tipoDistancia)
+        try:
+            MatDistancias = getMatDist(Datos_Archivo, tipoDistancia)
+        except:
+            return jsonify({"error": "Hay un problema con el archivo CSV"})
         if not MatDistancias.empty:
             distanciasCSV = MatDistancias.to_csv()
             return jsonify({
@@ -70,10 +79,16 @@ def distanciaObjetosPOST(tipoDistancia):
     except:
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
-        Datos_Archivo = pd.read_csv(csvFile)
-        indexObjeto1 = int(request.form["objeto1"])
-        indexObjeto2 = int(request.form["objeto2"])
-        Distancia = getDistObjetos(Datos_Archivo, tipoDistancia,indexObjeto1,indexObjeto2)
+        try:
+            Datos_Archivo = pd.read_csv(csvFile)
+            indexObjeto1 = int(request.form["objeto1"])
+            indexObjeto2 = int(request.form["objeto2"])
+        except:
+            return jsonify({"error": "Faltan parametros en la petición"})
+        try:
+            Distancia = getDistObjetos(Datos_Archivo, tipoDistancia,indexObjeto1,indexObjeto2)
+        except:
+            return jsonify({"error": "Hay un problema con el archivo .csv"})
         if Distancia:
             return jsonify({
                 "distancia": Distancia
@@ -92,11 +107,17 @@ def clusteringPOST(tipoClustering):
     except:
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
-        Datos_Archivo = pd.read_csv(csvFile)
-        minClusters = int(request.form["minClusters"])
-        maxClusters = int(request.form["maxClusters"])
-        tipoDistancia = request.form["tipoDistancia"]
-        respuesta = getClustering(Datos_Archivo, tipoClustering,minClusters,maxClusters, tipoDistancia)
+        try:
+            Datos_Archivo = pd.read_csv(csvFile)
+            minClusters = int(request.form["minClusters"])
+            maxClusters = int(request.form["maxClusters"])
+            tipoDistancia = request.form["tipoDistancia"]
+        except:
+            return jsonify({"error": "Faltan parametros en la petición"})
+        try:
+            respuesta = getClustering(Datos_Archivo, tipoClustering,minClusters,maxClusters, tipoDistancia)
+        except:
+            return jsonify({"error": "Hay un problema con el archivo .csv"})
         return jsonify(respuesta)
     else:
         return jsonify({'error': 'El archivo no es un CSV'})
