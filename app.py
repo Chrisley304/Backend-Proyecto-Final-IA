@@ -65,7 +65,6 @@ def matrizDistanciaPOST(tipoDistancia):
             distanciasCSV = MatDistancias.to_csv()
             return jsonify({
                 "csv": distanciasCSV,
-                "prueba": "prueba"
             })
         else:
             return jsonify({'error': 'El parametro {} es incorrecto'.format(tipoDistancia)})
