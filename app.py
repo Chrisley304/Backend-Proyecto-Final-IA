@@ -32,15 +32,17 @@ def asociacionPOST():
         except:
             return jsonify({"error":"Faltan parametros en la petición"})
         try:
-            listaResultados = obtenerApriori(Datos_Archivo,soporteMinimo,confianzaMinima,elevacionMinima)
+            ReglasDataFrame, nReglas, datosX, datosY = obtenerApriori(
+                Datos_Archivo, soporteMinimo, confianzaMinima, elevacionMinima)
         except:
             return jsonify({"error":"Hay un problema con el archivo .csv"})
-        ReglasDataFrame = pd.DataFrame(listaResultados)
         # Se genera el CSV y se almacena en la variable reglasCSV para despues enviarlo en el .json
         reglasCSV = ReglasDataFrame.to_csv()
         return jsonify({
             "csv": reglasCSV,
-            "nReglas": len(listaResultados),
+            "nReglas": nReglas,
+            "datosX": datosX,
+            "datosY": datosY
         })
     else:
         return jsonify({'error': 'El archivo no es un CSV'})
