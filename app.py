@@ -1,21 +1,46 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import pandas as pd
 from algoritmos.apriori import obtenerApriori
 from algoritmos.metricasDistancia import *
 from algoritmos.clustering import *
+from algoritmos.analisisDatos import *
 # from os.path import splitext
 
 app = Flask(__name__)
 CORS(app)
+
+
 def getCSV(file):
     if file:
         try:
-            if "csv" ==  str(file.filename).split(".")[-1]: return file
+            if "csv" == str(file.filename).split(".")[-1]:
+                return file
             # hola.csv.hola
         except:
             return None
     return None
+
+
+@app.route('/analisis-datos', methods=['POST'])
+def analisisDatosPOST():
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
+    if csvFile:
+        try:
+            Datos_Archivo = pd.read_csv(csvFile)
+            bytes_obj = obtenerMapaCalor(Datos_Archivo)
+            # Se envia el mapa de calor generado:
+            # filename = csvFile.filename.split(".")[0]
+            return send_file(bytes_obj,
+                             mimetype='image/png')
+        except Exception as e:
+            print(e)
+            return jsonify({"error": "Hay un problema con el archivo CSV"})
+    pass
+
 
 @app.route('/asociacion', methods=['POST'])
 def asociacionPOST():
@@ -30,12 +55,12 @@ def asociacionPOST():
             confianzaMinima = float(request.form["confianzaMinima"])
             elevacionMinima = float(request.form["elevacionMinima"])
         except:
-            return jsonify({"error":"Faltan parametros en la petición"})
+            return jsonify({"error": "Faltan parametros en la petición"})
         try:
             ReglasDataFrame, nReglas, datosX, datosY = obtenerApriori(
                 Datos_Archivo, soporteMinimo, confianzaMinima, elevacionMinima)
         except:
-            return jsonify({"error":"Hay un problema con el archivo .csv"})
+            return jsonify({"error": "Hay un problema con el archivo .csv"})
         # Se genera el CSV y se almacena en la variable reglasCSV para despues enviarlo en el .json
         reglasCSV = ReglasDataFrame.to_csv()
         return jsonify({
@@ -87,7 +112,8 @@ def distanciaObjetosPOST(tipoDistancia):
         except:
             return jsonify({"error": "Faltan parametros en la petición"})
         try:
-            Distancia = getDistObjetos(Datos_Archivo, tipoDistancia,indexObjeto1,indexObjeto2)
+            Distancia = getDistObjetos(
+                Datos_Archivo, tipoDistancia, indexObjeto1, indexObjeto2)
         except:
             return jsonify({"error": "Hay un problema con el archivo .csv"})
         if Distancia:
@@ -116,7 +142,8 @@ def clusteringPOST(tipoClustering):
         except:
             return jsonify({"error": "Faltan parametros en la petición"})
         try:
-            respuesta = getClustering(Datos_Archivo, tipoClustering,minClusters,maxClusters, tipoDistancia)
+            respuesta = getClustering(
+                Datos_Archivo, tipoClustering, minClusters, maxClusters, tipoDistancia)
         except:
             return jsonify({"error": "Hay un problema con el archivo .csv"})
         return jsonify(respuesta)
