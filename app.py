@@ -5,6 +5,7 @@ from algoritmos.apriori import obtenerApriori
 from algoritmos.metricasDistancia import *
 from algoritmos.clustering import *
 from algoritmos.analisisDatos import *
+import base64
 # from os.path import splitext
 
 app = Flask(__name__)
@@ -34,8 +35,12 @@ def analisisDatosPOST():
             bytes_obj = obtenerMapaCalor(Datos_Archivo)
             # Se envia el mapa de calor generado:
             # filename = csvFile.filename.split(".")[0]
-            return send_file(bytes_obj,
-                             mimetype='image/png')
+            # Se hace un encode en la imagen con base64 string
+            image_data = base64.b64encode(
+                bytes_obj.getvalue()).decode('utf-8')
+            columnas = Datos_Archivo.columns.tolist()
+            # Return the image data in the JSON response
+            return jsonify({'image_data': image_data, 'columnas': columnas})
         except Exception as e:
             print(e)
             return jsonify({"error": "Hay un problema con el archivo CSV"})

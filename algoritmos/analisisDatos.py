@@ -20,4 +20,5 @@ def obtenerMapaCalor(datos: DataFrame):
     bytes_obj = io.BytesIO()
     plt.savefig(bytes_obj, format='png')
     bytes_obj.seek(0)
+    # columnas = datos.columns.to_list()
     return bytes_obj
