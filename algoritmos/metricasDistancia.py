@@ -6,16 +6,26 @@ import numpy as np
 # Para el cálculo de distancias
 from scipy.spatial.distance import cdist
 from scipy.spatial import distance
+from sklearn.preprocessing import StandardScaler
 
 
-def getMatDist(datos: DataFrame, tipoDistancia):
-    if tipoDistancia in ['euclidean','chebyshev','cityblock']:
-        DstEuclidiana = cdist( datos, datos, metric=tipoDistancia)
+def getMatDist(datosCompletos: DataFrame, tipoDistancia, seleccionCaracteristicas: list):
+
+    # Se estandarizan los datos con las caracteristicas seleccionadas:
+    # Se instancia el objeto StandardScaler o MinMaxScaler
+    estandarizar = StandardScaler()
+    datosSeleccionados = datosCompletos[seleccionCaracteristicas]
+    datosEstandarizados = estandarizar.fit_transform(datosSeleccionados)
+
+    if tipoDistancia in ['euclidean', 'chebyshev', 'cityblock']:
+        DstEuclidiana = cdist(datosEstandarizados,
+                              datosEstandarizados, metric=tipoDistancia)
     elif tipoDistancia == 'minkowski':
-        DstEuclidiana = cdist( datos, datos, metric=tipoDistancia, p=1.5)
+        DstEuclidiana = cdist(datosEstandarizados,
+                              datosEstandarizados, metric=tipoDistancia, p=1.5)
     else:
-        return DataFrame() # DataFrame vacio para representar error
-    
+        return DataFrame()  # DataFrame vacio para representar error
+
     return DataFrame(DstEuclidiana)
 
 
@@ -29,6 +39,6 @@ def getDistObjetos(datos: DataFrame, tipoDistancia, indexObje1, indexObje2):
     elif tipoDistancia == 'cityblock':
         return distance.cityblock(Objeto1, Objeto2)
     elif tipoDistancia == 'minkowski':
-        return distance.minkowski(Objeto1, Objeto2,p=1.5)
+        return distance.minkowski(Objeto1, Objeto2, p=1.5)
     else:
         return None  # None para representar error

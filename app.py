@@ -84,13 +84,20 @@ def matrizDistanciaPOST(tipoDistancia):
     # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
     try:
         csvFile = getCSV(request.files['file'])
+        caracteristicas = request.form["seleccionCaracteristicas"]
+        caracteristicasList = caracteristicas.split(',')
+        seleccionCaracteristicas = []
+        for i in caracteristicasList:
+            seleccionCaracteristicas.append(i)
     except:
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
         Datos_Archivo = pd.read_csv(csvFile)
         try:
-            MatDistancias = getMatDist(Datos_Archivo, tipoDistancia)
-        except:
+            MatDistancias = getMatDist(
+                Datos_Archivo, tipoDistancia, seleccionCaracteristicas)
+        except Exception as error:
+            print(error)
             return jsonify({"error": "Hay un problema con el archivo CSV"})
         if not MatDistancias.empty:
             distanciasCSV = MatDistancias.to_csv()
@@ -102,34 +109,34 @@ def matrizDistanciaPOST(tipoDistancia):
     else:
         return jsonify({'error': 'El archivo no es un CSV'})
 
-
-@app.route('/distancia-objetos/<tipoDistancia>', methods=['POST'])
-def distanciaObjetosPOST(tipoDistancia):
-    # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
-    try:
-        csvFile = getCSV(request.files['file'])
-    except:
-        return jsonify({'error': 'No se logro leer el archivo'})
-    if csvFile:
-        try:
-            Datos_Archivo = pd.read_csv(csvFile)
-            indexObjeto1 = int(request.form["objeto1"])
-            indexObjeto2 = int(request.form["objeto2"])
-        except:
-            return jsonify({"error": "Faltan parametros en la petición"})
-        try:
-            Distancia = getDistObjetos(
-                Datos_Archivo, tipoDistancia, indexObjeto1, indexObjeto2)
-        except:
-            return jsonify({"error": "Hay un problema con el archivo .csv"})
-        if Distancia:
-            return jsonify({
-                "distancia": Distancia
-            })
-        else:
-            return jsonify({'error': 'El parametro {} es incorrecto'.format(tipoDistancia)})
-    else:
-        return jsonify({'error': 'El archivo no es un CSV'})
+# Esta peticion al final se elimino debido a que fue muy innecesaria
+# @app.route('/distancia-objetos/<tipoDistancia>', methods=['POST'])
+# def distanciaObjetosPOST(tipoDistancia):
+#     # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
+#     try:
+#         csvFile = getCSV(request.files['file'])
+#     except:
+#         return jsonify({'error': 'No se logro leer el archivo'})
+#     if csvFile:
+#         try:
+#             Datos_Archivo = pd.read_csv(csvFile)
+#             indexObjeto1 = int(request.form["objeto1"])
+#             indexObjeto2 = int(request.form["objeto2"])
+#         except:
+#             return jsonify({"error": "Faltan parametros en la petición"})
+#         try:
+#             Distancia = getDistObjetos(
+#                 Datos_Archivo, tipoDistancia, indexObjeto1, indexObjeto2)
+#         except:
+#             return jsonify({"error": "Hay un problema con el archivo .csv"})
+#         if Distancia:
+#             return jsonify({
+#                 "distancia": Distancia
+#             })
+#         else:
+#             return jsonify({'error': 'El parametro {} es incorrecto'.format(tipoDistancia)})
+#     else:
+#         return jsonify({'error': 'El archivo no es un CSV'})
 
 
 @app.route('/clustering/<tipoClustering>', methods=['POST'])
