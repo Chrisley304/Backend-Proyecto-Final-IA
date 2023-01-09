@@ -151,13 +151,18 @@ def clusteringPOST(tipoClustering):
             Datos_Archivo = pd.read_csv(csvFile)
             minClusters = int(request.form["minClusters"])
             maxClusters = int(request.form["maxClusters"])
-            tipoDistancia = request.form["tipoDistancia"]
-        except:
+            tipoDistancia = "" if tipoClustering == "particional" else request.form[
+                "tipoDistancia"]
+        except Exception as error:
+            print(error)
             return jsonify({"error": "Faltan parametros en la petición"})
         try:
             respuesta = getClustering(
                 Datos_Archivo, tipoClustering, minClusters, maxClusters, tipoDistancia)
-        except:
+        except Exception as error:
+            print(error)
+            if tipoClustering == "particional":
+                return jsonify({"error": "No se encontro el codo para el máximo de clústers colocado, por favor incrementa el numero máximo de clústers."})
             return jsonify({"error": "Hay un problema con el archivo .csv"})
         return jsonify(respuesta)
     else:

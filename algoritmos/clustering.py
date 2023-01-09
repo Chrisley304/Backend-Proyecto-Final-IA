@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from kneed import KneeLocator
 
+
 def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, algoritmoDistancia):
     MatrizDatos = numpy.array(datos)
     estand = StandardScaler()
@@ -21,13 +22,16 @@ def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, al
             return {"error": "El algoritmo de distancia {} no es valido (Solo puedes utilizar 'euclidean','chebyshev','cityblock')".format(algoritmoDistancia)}
     elif tipoClustering == 'particional':
         SSE = []
-        for i in range(minClusters, maxClusters):
+        # Se utiliza random_state para inicializar el generador interno de números aleatorios
+        for i in range(2, 12):
             km = KMeans(n_clusters=i, random_state=0)
             km.fit(datosEstandarizados)
             SSE.append(km.inertia_)
         # Se localiza la rodilla:
-        kl = KneeLocator(range(minClusters, maxClusters), SSE, curve="convex", direction="decreasing")
-        MParticional = KMeans(n_clusters=kl.elbow, random_state=0).fit(datosEstandarizados)
+        kl = KneeLocator(range(minClusters, maxClusters), SSE,
+                         curve="convex", direction="decreasing")
+        MParticional = KMeans(n_clusters=kl.elbow, random_state=0).fit(
+            datosEstandarizados)
         MParticional.predict(datosEstandarizados)
         datos['cluster'] = MParticional.labels_
     else:
@@ -35,4 +39,4 @@ def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, al
 
     # Cantidad de elementos en los clusters
     clustersConteo = (datos.groupby(['cluster'])['cluster'].count()).to_dict()
-    return {"csv":datos.to_csv(), "conteo":clustersConteo}
+    return {"csv": datos.to_csv(), "conteo": clustersConteo}
