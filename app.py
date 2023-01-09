@@ -39,7 +39,8 @@ def analisisDatosPOST():
         except Exception as e:
             print(e)
             return jsonify({"error": "Hay un problema con el archivo CSV"})
-    pass
+    else:
+        return jsonify({'error': 'El archivo no es un CSV'})
 
 
 @app.route('/asociacion', methods=['POST'])
