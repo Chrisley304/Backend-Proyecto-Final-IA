@@ -144,6 +144,11 @@ def clusteringPOST(tipoClustering):
     # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
     try:
         csvFile = getCSV(request.files['file'])
+        caracteristicas = request.form["seleccionCaracteristicas"]
+        caracteristicasList = caracteristicas.split(',')
+        seleccionCaracteristicas = []
+        for i in caracteristicasList:
+            seleccionCaracteristicas.append(i)
     except:
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
@@ -158,8 +163,9 @@ def clusteringPOST(tipoClustering):
             print(error)
             return jsonify({"error": "Faltan parametros en la petición"})
         try:
+            datosSeleccionados = Datos_Archivo[seleccionCaracteristicas]
             respuesta = getClustering(
-                Datos_Archivo, tipoClustering, minClusters, maxClusters, tipoDistancia)
+                datosSeleccionados, tipoClustering, minClusters, maxClusters, tipoDistancia, seleccionCaracteristicas)
         except Exception as error:
             print(error)
             if tipoClustering == "particional":

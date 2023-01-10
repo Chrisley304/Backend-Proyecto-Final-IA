@@ -7,7 +7,7 @@ from sklearn.cluster import AgglomerativeClustering, KMeans
 from kneed import KneeLocator
 
 
-def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, algoritmoDistancia):
+def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, algoritmoDistancia, seleccionCaracteristicas):
     MatrizDatos = numpy.array(datos)
     estand = StandardScaler()
     # Se crean las etiquetas de los elementos en los clústeres
