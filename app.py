@@ -163,7 +163,7 @@ def clusteringPOST(tipoClustering):
             print(error)
             return jsonify({"error": "Faltan parametros en la petición"})
         try:
-            datosSeleccionados = Datos_Archivo[seleccionCaracteristicas]
+            datosSeleccionados = Datos_Archivo[seleccionCaracteristicas].copy()
             respuesta = getClustering(
                 datosSeleccionados, tipoClustering, minClusters, maxClusters, tipoDistancia, seleccionCaracteristicas)
         except Exception as error:
