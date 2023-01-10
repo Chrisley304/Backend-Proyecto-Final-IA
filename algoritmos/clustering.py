@@ -15,7 +15,7 @@ def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, al
     if tipoClustering == 'jerarquico':
         if algoritmoDistancia in ['euclidean', 'chebyshev', 'cityblock']:
             MJerarquico = AgglomerativeClustering(
-                n_clusters=7, linkage='complete', affinity=algoritmoDistancia)
+                n_clusters=maxClusters, linkage='complete', affinity=algoritmoDistancia)
             MJerarquico.fit_predict(datosEstandarizados)
             datos['cluster'] = MJerarquico.labels_
         else:
@@ -23,7 +23,7 @@ def getClustering(datos: DataFrame, tipoClustering, minClusters, maxClusters, al
     elif tipoClustering == 'particional':
         SSE = []
         # Se utiliza random_state para inicializar el generador interno de números aleatorios
-        for i in range(2, 12):
+        for i in range(minClusters, maxClusters):
             km = KMeans(n_clusters=i, random_state=0)
             km.fit(datosEstandarizados)
             SSE.append(km.inertia_)
