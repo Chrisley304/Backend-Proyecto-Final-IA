@@ -6,6 +6,7 @@ from algoritmos.metricasDistancia import *
 from algoritmos.clustering import *
 from algoritmos.analisisDatos import *
 from algoritmos.clasificacion import *
+from algoritmos.arboles_bosques import *
 import base64
 # from os.path import splitext
 
@@ -201,6 +202,39 @@ def clasificacionPOST():
             filename = csvFile.filename.split(".")[0]
             respuesta = getClasificacion(
                 Datos_Archivo, seleccionCaracteristicas, tamanioMuestra, variableClase, filename)
+        except Exception as error:
+            print(error.with_traceback())
+            return jsonify({"error": "Hay un problema con el archivo .csv"})
+        return jsonify(respuesta)
+    else:
+        return jsonify({'error': 'El archivo no es un CSV'})
+
+
+# Tamaño de muestra, variable predictora, seleccion de caracteristicas
+@app.route('/arboles-bosques', methods=['POST'])
+def arbolesBosquesPOST():
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
+    if csvFile:
+        try:
+            Datos_Archivo = pd.read_csv(csvFile)
+            caracteristicas = request.form["seleccionCaracteristicas"]
+            tamanioMuestra = float(request.form["tamanioMuestra"])
+            profundidadMaxima = int(request.form["profundidadMaxima"])
+            variableClase = request.form["variableClase"]
+            caracteristicasList = caracteristicas.split(',')
+            seleccionCaracteristicas = []
+            for i in caracteristicasList:
+                seleccionCaracteristicas.append(i)
+        except Exception as error:
+            print(error)
+            return jsonify({"error": "Faltan parametros en la petición"})
+        try:
+            filename = csvFile.filename.split(".")[0]
+            respuesta = getArbolYBosque(
+                Datos_Archivo, seleccionCaracteristicas, tamanioMuestra, variableClase, filename, profundidadMaxima)
         except Exception as error:
             print(error.with_traceback())
             return jsonify({"error": "Hay un problema con el archivo .csv"})

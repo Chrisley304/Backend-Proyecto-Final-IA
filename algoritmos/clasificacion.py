@@ -19,14 +19,16 @@ def getClasificacion(Datos: DataFrame, seleccionCaracteristicas: list, tamanioMu
     if len(valoresVariableClase) > 2:
         return {"error": "La variable predictora tiene mas de 2 clases, el algoritmo solo recibe variables predictorias binarias."}
     else:
-        # Se convierten los valores de la variable predictora a 0 y 1
-        if len(valoresVariableClase) == 2:
-            Datos[variableClase] = Datos[variableClase].replace(
-                valoresVariableClase[0], 0)
-            Datos[variableClase] = Datos[variableClase].replace(
-                valoresVariableClase[1], 1)
-        else:
-            return {"error": "La variable predictora no tiene clases, el algoritmo solo recibe variables predictorias binarias."}
+        # Se verifica que las clases sean 0 y 1
+        if not 0 in valoresVariableClase or not 1 in valoresVariableClase:
+            # Se convierten los valores de la variable predictora a 0 y 1 en el caso que no tengan este formato
+            if len(valoresVariableClase) == 2:
+                Datos[variableClase] = Datos[variableClase].replace(
+                    valoresVariableClase[0], 0)
+                Datos[variableClase] = Datos[variableClase].replace(
+                    valoresVariableClase[1], 1)
+            else:
+                return {"error": "La variable predictora no tiene clases, el algoritmo solo recibe variables predictorias binarias."}
 
     variablesPredictoras = np.array(Datos[seleccionCaracteristicas])
     Y = np.array(Datos[[variableClase]])
