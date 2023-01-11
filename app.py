@@ -5,6 +5,7 @@ from algoritmos.apriori import obtenerApriori
 from algoritmos.metricasDistancia import *
 from algoritmos.clustering import *
 from algoritmos.analisisDatos import *
+from algoritmos.clasificacion import *
 import base64
 # from os.path import splitext
 
@@ -144,16 +145,16 @@ def clusteringPOST(tipoClustering):
     # type puede ser: euclidean, chebyshev , cityblock (Manhattan) o minkowski
     try:
         csvFile = getCSV(request.files['file'])
-        caracteristicas = request.form["seleccionCaracteristicas"]
-        caracteristicasList = caracteristicas.split(',')
-        seleccionCaracteristicas = []
-        for i in caracteristicasList:
-            seleccionCaracteristicas.append(i)
     except:
         return jsonify({'error': 'No se logro leer el archivo'})
     if csvFile:
         try:
             Datos_Archivo = pd.read_csv(csvFile)
+            caracteristicas = request.form["seleccionCaracteristicas"]
+            caracteristicasList = caracteristicas.split(',')
+            seleccionCaracteristicas = []
+            for i in caracteristicasList:
+                seleccionCaracteristicas.append(i)
             minClusters = int(
                 request.form["minClusters"]) if tipoClustering == "particional" else 0
             maxClusters = int(request.form["maxClusters"])
@@ -170,6 +171,38 @@ def clusteringPOST(tipoClustering):
             print(error)
             if tipoClustering == "particional":
                 return jsonify({"error": "No se encontro el codo para el rango de clústers colocado, por favor deja un buen rango entre el minimo y máximo de clústers."})
+            return jsonify({"error": "Hay un problema con el archivo .csv"})
+        return jsonify(respuesta)
+    else:
+        return jsonify({'error': 'El archivo no es un CSV'})
+
+
+# Tamaño de muestra, variable predictora, seleccion de caracteristicas
+@app.route('/clasificacion', methods=['POST'])
+def clasificacionPOST():
+    try:
+        csvFile = getCSV(request.files['file'])
+    except:
+        return jsonify({'error': 'No se logro leer el archivo'})
+    if csvFile:
+        try:
+            Datos_Archivo = pd.read_csv(csvFile)
+            caracteristicas = request.form["seleccionCaracteristicas"]
+            tamanioMuestra = float(request.form["tamanioMuestra"])
+            variableClase = request.form["variableClase"]
+            caracteristicasList = caracteristicas.split(',')
+            seleccionCaracteristicas = []
+            for i in caracteristicasList:
+                seleccionCaracteristicas.append(i)
+        except Exception as error:
+            print(error)
+            return jsonify({"error": "Faltan parametros en la petición"})
+        try:
+            filename = csvFile.filename.split(".")[0]
+            respuesta = getClasificacion(
+                Datos_Archivo, seleccionCaracteristicas, tamanioMuestra, variableClase, filename)
+        except Exception as error:
+            print(error.with_traceback())
             return jsonify({"error": "Hay un problema con el archivo .csv"})
         return jsonify(respuesta)
     else:

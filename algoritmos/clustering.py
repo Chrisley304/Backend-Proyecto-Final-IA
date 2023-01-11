@@ -100,5 +100,4 @@ def obtenerGraficaParticional(MParticional, MEstandarizada):
     bytes_obj.seek(0)
     image_data = base64.b64encode(
         bytes_obj.getvalue()).decode('utf-8')
-    # columnas = datos.columns.to_list()
     return image_data
